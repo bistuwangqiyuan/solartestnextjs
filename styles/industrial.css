@@ -1,0 +1,286 @@
+/* 工业风格主题 */
+:root {
+  /* 主色调 - 深色工业风 */
+  --primary: #0ea5e9; /* 天蓝色 - 主要交互色 */
+  --primary-dark: #0284c7;
+  --primary-light: #38bdf8;
+  
+  /* 背景色 */
+  --bg-primary: #0f172a; /* 深蓝黑色 */
+  --bg-secondary: #1e293b; /* 次深色 */
+  --bg-tertiary: #334155; /* 卡片背景 */
+  --bg-hover: #475569;
+  
+  /* 文字颜色 */
+  --text-primary: #f1f5f9; /* 主文字 */
+  --text-secondary: #cbd5e1; /* 次要文字 */
+  --text-muted: #94a3b8; /* 淡化文字 */
+  
+  /* 状态颜色 */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+  
+  /* 边框 */
+  --border: #334155;
+  --border-light: #475569;
+  
+  /* 阴影 */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  
+  /* 数据可视化颜色 */
+  --chart-1: #0ea5e9;
+  --chart-2: #10b981;
+  --chart-3: #f59e0b;
+  --chart-4: #ef4444;
+  --chart-5: #8b5cf6;
+  --chart-6: #ec4899;
+}
+
+/* 全局样式 */
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* 工业风格组件 */
+.industrial-card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  transition: all 0.2s ease;
+}
+
+.industrial-card:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-lg);
+}
+
+/* 数据显示组件 */
+.data-display {
+  background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.data-display::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.data-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.data-unit {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-left: 0.25rem;
+}
+
+/* 状态指示器 */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-indicator.online {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-indicator.offline {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--error);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-indicator.warning {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* 按钮样式 */
+.industrial-button {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.industrial-button:hover {
+  background: var(--bg-hover);
+  border-color: var(--primary);
+  box-shadow: 0 0 20px rgba(14, 165, 233, 0.3);
+}
+
+.industrial-button:active {
+  transform: scale(0.98);
+}
+
+.industrial-button.primary {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.industrial-button.primary:hover {
+  background: var(--primary-dark);
+  border-color: var(--primary-dark);
+}
+
+/* 输入框样式 */
+.industrial-input {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.industrial-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.1);
+}
+
+/* 表格样式 */
+.industrial-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.industrial-table th {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.industrial-table td {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.industrial-table tr:last-child td {
+  border-bottom: none;
+}
+
+.industrial-table tr:hover {
+  background: var(--bg-tertiary);
+}
+
+/* 网格背景效果 */
+.grid-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(14, 165, 233, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(14, 165, 233, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* 动画效果 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-hover);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .data-value {
+    font-size: 1.5rem;
+  }
+  
+  .industrial-card {
+    padding: 1rem;
+  }
+}
