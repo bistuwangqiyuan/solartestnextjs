@@ -23,18 +23,17 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
 # local env files
-.env*
-!.env.example
+.env*.local
+.env
 
 # vercel
 .vercel
 
-# stackbit
-.cache
-.stackbit/cache
+# typescript
+*.tsbuildinfo
+next-env.d.ts
 
-# Local Netlify folder
+# netlify
 .netlify
