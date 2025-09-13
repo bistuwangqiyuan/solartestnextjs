@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
 
@@ -88,9 +89,9 @@ export default function LoginPage() {
                 <input type="checkbox" className="rounded border-[var(--border)] bg-[var(--bg-primary)]" />
                 <span className="ml-2 text-sm text-[var(--text-secondary)]">记住我</span>
               </label>
-              <a href="#" className="text-sm text-[var(--primary)] hover:text-[var(--primary-light)]">
+              <Link href="/auth/reset-password" className="text-sm text-[var(--primary)] hover:text-[var(--primary-light)]">
                 忘记密码？
-              </a>
+              </Link>
             </div>
 
             <button
@@ -112,9 +113,15 @@ export default function LoginPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-[var(--text-secondary)]">
               还没有账号？
-              <a href="#" className="text-[var(--primary)] hover:text-[var(--primary-light)] ml-1">
-                联系管理员
-              </a>
+              <Link href="/auth/register" className="text-[var(--primary)] hover:text-[var(--primary-light)] ml-1">
+                立即注册
+              </Link>
+            </p>
+          </div>
+          
+          <div className="mt-4 text-center">
+            <p className="text-xs text-[var(--text-muted)]">
+              测试账号：admin@test.com / Test123456
             </p>
           </div>
         </div>

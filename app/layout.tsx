@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { ToastProvider } from '@/components/providers/toast-provider';
 import './globals.css';
+import '../styles/industrial.css';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,6 +21,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <div className="grid-background"></div>
         {children}
+        <ToastProvider />
       </body>
     </html>
   );
