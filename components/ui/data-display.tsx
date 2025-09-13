@@ -1,104 +1,61 @@
-import * as React from 'react'
-import { cn } from '@/lib/utils'
-import { Card } from './card'
+import { cn } from '@/lib/utils';
+import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 
 interface DataDisplayProps {
-  label: string
-  value: string | number
-  unit?: string
-  trend?: 'up' | 'down' | 'stable'
-  className?: string
-  valueClassName?: string
+  label: string;
+  value: string | number;
+  unit?: string;
+  icon?: React.ReactNode;
+  trend?: 'up' | 'down' | 'stable';
+  className?: string;
 }
 
 export function DataDisplay({
   label,
   value,
   unit,
-  trend,
-  className,
-  valueClassName,
-}: DataDisplayProps) {
-  const trendColors = {
-    up: 'text-green-400',
-    down: 'text-red-400',
-    stable: 'text-gray-400',
-  }
-
-  const trendIcons = {
-    up: '↑',
-    down: '↓',
-    stable: '→',
-  }
-
-  return (
-    <Card className={cn('p-4', className)}>
-      <div className="flex flex-col space-y-2">
-        <span className="data-label">{label}</span>
-        <div className="flex items-baseline gap-2">
-          <span className={cn('data-value', valueClassName)}>{value}</span>
-          {unit && <span className="text-sm text-muted-foreground">{unit}</span>}
-          {trend && (
-            <span className={cn('text-lg', trendColors[trend])}>
-              {trendIcons[trend]}
-            </span>
-          )}
-        </div>
-      </div>
-    </Card>
-  )
-}
-
-interface MetricCardProps {
-  title: string
-  value: string | number
-  subtitle?: string
-  icon?: React.ReactNode
-  trend?: {
-    value: number
-    isPositive: boolean
-  }
-  className?: string
-}
-
-export function MetricCard({
-  title,
-  value,
-  subtitle,
   icon,
   trend,
   className,
-}: MetricCardProps) {
+}: DataDisplayProps) {
   return (
-    <Card className={cn('p-6', className)}>
-      <div className="flex items-center justify-between">
-        <div className="space-y-2">
-          <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-            {title}
-          </p>
-          <div className="flex items-baseline gap-2">
-            <h3 className="text-3xl font-bold text-industrial-accent">{value}</h3>
-            {trend && (
-              <span
-                className={cn(
-                  'text-sm font-medium',
-                  trend.isPositive ? 'text-green-400' : 'text-red-400'
-                )}
-              >
-                {trend.isPositive ? '+' : ''}{trend.value}%
-              </span>
-            )}
-          </div>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground">{subtitle}</p>
-          )}
-        </div>
+    <div className={cn('data-display', className)}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-sm text-[var(--text-secondary)]">{label}</span>
         {icon && (
-          <div className="h-12 w-12 rounded-full bg-industrial-accent/10 flex items-center justify-center text-industrial-accent">
+          <div className="text-[var(--text-muted)]">
             {icon}
           </div>
         )}
       </div>
-    </Card>
-  )
+      
+      <div className="flex items-baseline gap-1">
+        <span className="data-value">{value}</span>
+        {unit && <span className="data-unit">{unit}</span>}
+      </div>
+      
+      {trend && (
+        <div className="flex items-center gap-1 mt-2">
+          {trend === 'up' && (
+            <>
+              <TrendingUp className="w-4 h-4 text-green-500" />
+              <span className="text-xs text-green-500">上升</span>
+            </>
+          )}
+          {trend === 'down' && (
+            <>
+              <TrendingDown className="w-4 h-4 text-red-500" />
+              <span className="text-xs text-red-500">下降</span>
+            </>
+          )}
+          {trend === 'stable' && (
+            <>
+              <Minus className="w-4 h-4 text-[var(--text-muted)]" />
+              <span className="text-xs text-[var(--text-muted)]">稳定</span>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }

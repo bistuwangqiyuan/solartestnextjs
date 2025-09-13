@@ -1,79 +1,117 @@
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcryptjs'
-import type { User } from '@/types'
+import { supabase } from './supabase';
+import type { User } from '@/types';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key'
-const TOKEN_EXPIRY = '7d'
+export const auth = {
+  // 登录
+  async signIn(email: string, password: string) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-export interface TokenPayload {
-  userId: string
-  username: string
-  role: string
-}
+    if (error) throw error;
 
-export async function hashPassword(password: string): Promise<string> {
-  const salt = await bcrypt.genSalt(10)
-  return bcrypt.hash(password, salt)
-}
+    // 更新最后登录时间
+    if (data.user) {
+      await supabase
+        .from('user_profiles')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', data.user.id);
+    }
 
-export async function comparePassword(password: string, hash: string): Promise<boolean> {
-  return bcrypt.compare(password, hash)
-}
+    return data;
+  },
 
-export function generateToken(user: User): string {
-  const payload: TokenPayload = {
-    userId: user.id,
-    username: user.username,
-    role: user.role,
-  }
+  // 注册
+  async signUp(email: string, password: string, fullName?: string) {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
 
-  return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: TOKEN_EXPIRY,
-  })
-}
+    if (error) throw error;
 
-export function verifyToken(token: string): TokenPayload | null {
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET) as TokenPayload
-    return decoded
-  } catch (error) {
-    return null
-  }
-}
+    // 创建用户配置文件
+    if (data.user) {
+      await supabase.from('user_profiles').insert({
+        id: data.user.id,
+        email: data.user.email!,
+        full_name: fullName,
+        role: 'observer', // 默认角色
+      });
+    }
 
-export function extractToken(authHeader?: string): string | null {
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return null
-  }
+    return data;
+  },
 
-  return authHeader.substring(7)
-}
+  // 登出
+  async signOut() {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  },
 
-export function hasPermission(userRole: string, requiredRole: string): boolean {
-  const roleHierarchy = {
-    VIEWER: 0,
-    ENGINEER: 1,
-    ADMIN: 2,
-  }
+  // 获取当前用户
+  async getCurrentUser(): Promise<User | null> {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) return null;
 
-  const userLevel = roleHierarchy[userRole as keyof typeof roleHierarchy] ?? 0
-  const requiredLevel = roleHierarchy[requiredRole as keyof typeof roleHierarchy] ?? 0
+    const { data: profile } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
 
-  return userLevel >= requiredLevel
-}
+    if (!profile) return null;
 
-export function generateSessionId(): string {
-  return `sess_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`
-}
+    return {
+      id: profile.id,
+      email: profile.email,
+      role: profile.role,
+      createdAt: new Date(profile.created_at),
+      lastLogin: profile.last_login ? new Date(profile.last_login) : undefined,
+    };
+  },
 
-export function isTokenExpired(token: string): boolean {
-  try {
-    const decoded = jwt.decode(token) as any
-    if (!decoded || !decoded.exp) return true
+  // 重置密码
+  async resetPassword(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
 
-    const currentTime = Math.floor(Date.now() / 1000)
-    return decoded.exp < currentTime
-  } catch {
-    return true
-  }
-}
+    if (error) throw error;
+  },
+
+  // 更新密码
+  async updatePassword(newPassword: string) {
+    const { error } = await supabase.auth.updateUser({
+      password: newPassword,
+    });
+
+    if (error) throw error;
+  },
+
+  // 检查用户权限
+  async checkPermission(requiredRole: 'admin' | 'operator' | 'observer'): Promise<boolean> {
+    const user = await this.getCurrentUser();
+    if (!user) return false;
+
+    const roleHierarchy = {
+      admin: 3,
+      operator: 2,
+      observer: 1,
+    };
+
+    return roleHierarchy[user.role] >= roleHierarchy[requiredRole];
+  },
+
+  // 监听认证状态变化
+  onAuthStateChange(callback: (event: string, session: any) => void) {
+    return supabase.auth.onAuthStateChange(callback);
+  },
+};

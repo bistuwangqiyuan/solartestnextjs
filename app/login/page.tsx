@@ -1,139 +1,128 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Zap, Lock, User, AlertCircle } from 'lucide-react'
-import { useAuthStore } from '@/lib/store/auth-store'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuthStore } from '@/lib/store/auth-store';
+import { Mail, Lock, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
-  const router = useRouter()
-  const { login } = useAuthStore()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter();
+  const { signIn, error, isLoading, clearError } = useAuthStore();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setIsLoading(true)
-
+    e.preventDefault();
     try {
-      // TODO: Replace with actual API call
-      // Mock login - accept any username/password for demo
-      if (username && password) {
-        const mockUser = {
-          id: '1',
-          username,
-          role: 'ADMIN' as const,
-          fullName: '系统管理员',
-          email: `${username}@pv-test.com`,
-          isActive: true,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        }
-        const mockToken = 'mock-jwt-token-' + Date.now()
-        
-        login(mockUser, mockToken)
-        router.push('/')
-      } else {
-        setError('请输入用户名和密码')
-      }
-    } catch (err) {
-      setError('登录失败，请重试')
-    } finally {
-      setIsLoading(false)
+      await signIn(email, password);
+      router.push('/dashboard');
+    } catch (error) {
+      // Error is handled by the store
     }
-  }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6">
-      {/* Background Elements */}
-      <div className="absolute inset-0 grid-pattern opacity-5" />
-      <div className="absolute inset-0 noise-overlay" />
-      
-      {/* Login Card */}
-      <div className="relative z-10 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-industrial-accent/10 mb-4">
-            <Zap className="h-8 w-8 text-industrial-accent" />
-          </div>
-          <h1 className="text-3xl font-bold text-gradient">光伏测试系统</h1>
-          <p className="text-muted-foreground mt-2">请登录以继续</p>
-        </div>
-
-        <Card className="shadow-industrial">
-          <CardHeader>
-            <CardTitle>用户登录</CardTitle>
-            <CardDescription>输入您的账户信息以访问系统</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="username">用户名</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="请输入用户名"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="password">密码</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="请输入密码"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-red-400/10 border border-red-400/30 text-red-400">
-                  <AlertCircle className="h-4 w-4" />
-                  <span className="text-sm">{error}</span>
-                </div>
-              )}
-
-              <Button
-                type="submit"
-                className="w-full"
-                variant="industrial"
-                disabled={isLoading}
-              >
-                {isLoading ? '登录中...' : '登录'}
-              </Button>
-            </form>
-
-            <div className="mt-6 text-center">
-              <p className="text-sm text-muted-foreground">
-                测试账户：任意用户名和密码
-              </p>
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="industrial-card">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-[var(--primary)] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-white text-2xl font-bold">PV</span>
             </div>
-          </CardContent>
-        </Card>
+            <h1 className="text-2xl font-bold text-[var(--text-primary)]">光伏测试系统</h1>
+            <p className="text-[var(--text-secondary)] mt-2">请登录以继续</p>
+          </div>
 
-        <div className="mt-8 text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 光伏测试系统. All rights reserved.</p>
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg flex items-center gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <p className="text-sm text-red-500">{error}</p>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                邮箱地址
+              </label>
+              <div className="relative">
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    clearError();
+                  }}
+                  className="industrial-input pl-10"
+                  placeholder="user@example.com"
+                  required
+                />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-[var(--text-secondary)] mb-2">
+                密码
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    clearError();
+                  }}
+                  className="industrial-input pl-10"
+                  placeholder="••••••••"
+                  required
+                />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--text-muted)]" />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <label className="flex items-center">
+                <input type="checkbox" className="rounded border-[var(--border)] bg-[var(--bg-primary)]" />
+                <span className="ml-2 text-sm text-[var(--text-secondary)]">记住我</span>
+              </label>
+              <a href="#" className="text-sm text-[var(--primary)] hover:text-[var(--primary-light)]">
+                忘记密码？
+              </a>
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="w-full industrial-button primary"
+            >
+              {isLoading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  登录中...
+                </span>
+              ) : (
+                '登录'
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-sm text-[var(--text-secondary)]">
+              还没有账号？
+              <a href="#" className="text-[var(--primary)] hover:text-[var(--primary-light)] ml-1">
+                联系管理员
+              </a>
+            </p>
+          </div>
         </div>
+
+        <p className="text-xs text-[var(--text-muted)] text-center mt-8">
+          © 2025 光伏测试系统. 保留所有权利.
+        </p>
       </div>
     </div>
-  )
+  );
 }

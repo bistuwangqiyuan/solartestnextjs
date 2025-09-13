@@ -1,44 +1,78 @@
-import { create } from 'zustand'
-import { persist } from 'zustand/middleware'
-import type { User } from '@/types'
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
+import type { User } from '@/types';
+import { auth } from '@/lib/auth';
 
 interface AuthState {
-  user: User | null
-  token: string | null
-  isAuthenticated: boolean
-  login: (user: User, token: string) => void
-  logout: () => void
-  updateUser: (user: Partial<User>) => void
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
+  
+  // Actions
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, fullName?: string) => Promise<void>;
+  signOut: () => Promise<void>;
+  checkAuth: () => Promise<void>;
+  clearError: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
       user: null,
-      token: null,
-      isAuthenticated: false,
-      
-      login: (user, token) => {
-        set({ user, token, isAuthenticated: true })
+      isLoading: false,
+      error: null,
+
+      signIn: async (email: string, password: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          await auth.signIn(email, password);
+          const user = await auth.getCurrentUser();
+          set({ user, isLoading: false });
+        } catch (error: any) {
+          set({ error: error.message, isLoading: false });
+          throw error;
+        }
       },
-      
-      logout: () => {
-        set({ user: null, token: null, isAuthenticated: false })
+
+      signUp: async (email: string, password: string, fullName?: string) => {
+        set({ isLoading: true, error: null });
+        try {
+          await auth.signUp(email, password, fullName);
+          // 注册后不自动登录，需要用户确认邮箱
+          set({ isLoading: false });
+        } catch (error: any) {
+          set({ error: error.message, isLoading: false });
+          throw error;
+        }
       },
-      
-      updateUser: (updatedUser) => {
-        set((state) => ({
-          user: state.user ? { ...state.user, ...updatedUser } : null,
-        }))
+
+      signOut: async () => {
+        set({ isLoading: true, error: null });
+        try {
+          await auth.signOut();
+          set({ user: null, isLoading: false });
+        } catch (error: any) {
+          set({ error: error.message, isLoading: false });
+          throw error;
+        }
       },
+
+      checkAuth: async () => {
+        set({ isLoading: true });
+        try {
+          const user = await auth.getCurrentUser();
+          set({ user, isLoading: false });
+        } catch (error: any) {
+          set({ user: null, isLoading: false });
+        }
+      },
+
+      clearError: () => set({ error: null }),
     }),
     {
       name: 'auth-storage',
-      partialize: (state) => ({
-        user: state.user,
-        token: state.token,
-        isAuthenticated: state.isAuthenticated,
-      }),
+      partialize: (state) => ({ user: state.user }), // 只持久化用户信息
     }
   )
-)
+);

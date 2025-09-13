@@ -1,34 +1,31 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+// 需要认证的路径
+const protectedRoutes = ['/dashboard', '/data', '/experiment', '/monitor', '/analysis', '/settings'];
 
 export function middleware(request: NextRequest) {
-  // Get the pathname of the request (e.g. /, /login, /dashboard)
-  const path = request.nextUrl.pathname
-
-  // Define paths that don't require authentication
-  const publicPaths = ['/login']
+  const { pathname } = request.nextUrl;
   
-  // Check if the current path is public
-  const isPublicPath = publicPaths.includes(path)
-
-  // Get the token from the cookies
-  const token = request.cookies.get('auth-storage')?.value || ''
-
-  // Redirect logic
-  if (!isPublicPath && !token) {
-    // If trying to access a protected route without a token, redirect to login
-    return NextResponse.redirect(new URL('/login', request.url))
+  // 检查是否是受保护的路由
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
+  
+  // 从cookie中获取认证信息
+  const hasAuth = request.cookies.has('auth-storage');
+  
+  if (isProtectedRoute && !hasAuth) {
+    // 如果是受保护的路由但没有认证，重定向到登录页
+    return NextResponse.redirect(new URL('/login', request.url));
   }
-
-  if (isPublicPath && token && path === '/login') {
-    // If trying to access login page with a token, redirect to home
-    return NextResponse.redirect(new URL('/', request.url))
+  
+  if (pathname === '/login' && hasAuth) {
+    // 如果已经登录但访问登录页，重定向到仪表板
+    return NextResponse.redirect(new URL('/dashboard', request.url));
   }
-
-  return NextResponse.next()
+  
+  return NextResponse.next();
 }
 
-// Configure which routes the middleware should run on
 export const config = {
   matcher: [
     /*
@@ -37,8 +34,7 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * - public folder
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|public).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
-}
+};
