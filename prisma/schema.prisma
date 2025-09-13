@@ -1,0 +1,102 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String      @id @default(cuid())
+  username      String      @unique
+  passwordHash  String
+  role          Role        @default(VIEWER)
+  fullName      String?
+  email         String?
+  isActive      Boolean     @default(true)
+  lastLogin     DateTime?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  experiments   Experiment[]
+  auditLogs     AuditLog[]
+}
+
+model Experiment {
+  id            String      @id @default(cuid())
+  type          ExperimentType
+  startTime     DateTime    @default(now())
+  endTime       DateTime?
+  status        ExperimentStatus @default(PENDING)
+  operatorId    String
+  operator      User        @relation(fields: [operatorId], references: [id])
+  deviceId      String
+  parameters    String      // JSON string
+  result        String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  data          ExperimentData[]
+}
+
+model ExperimentData {
+  id            String      @id @default(cuid())
+  experimentId  String
+  experiment    Experiment  @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+  timestamp     DateTime    @default(now())
+  voltage       Float?
+  current       Float?
+  power         Float?
+  powerFactor   Float?
+  temperature   Float?
+  deviceStatus  String?
+  createdAt     DateTime    @default(now())
+
+  @@index([experimentId])
+  @@index([timestamp])
+}
+
+model AuditLog {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  action        String
+  details       String?     // JSON string
+  ipAddress     String?
+  userAgent     String?
+  createdAt     DateTime    @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model SystemSetting {
+  id            String      @id @default(cuid())
+  key           String      @unique
+  value         String
+  description   String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}
+
+enum Role {
+  ADMIN
+  ENGINEER
+  VIEWER
+}
+
+enum ExperimentType {
+  LOW_VOLTAGE_HIGH_CURRENT
+  DUAL_POWER_SWITCH
+  CUSTOM
+}
+
+enum ExperimentStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
