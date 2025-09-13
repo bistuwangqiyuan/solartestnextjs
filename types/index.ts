@@ -1,9 +1,16 @@
 // 用户相关类型
+export type UserRole = 'admin' | 'operator' | 'observer';
+
 export interface User {
   id: string;
   email: string;
-  role: 'admin' | 'operator' | 'observer';
+  role: UserRole;
+  fullName?: string;
+  phone?: string;
+  department?: string;
+  isActive: boolean;
   createdAt: Date;
+  updatedAt: Date;
   lastLogin?: Date;
 }
 
@@ -79,19 +86,43 @@ export interface DashboardData {
     current: number;
     power: number;
     temperature: number;
+    humidity?: number;
     irradiance: number;
     efficiency: number;
   };
   systemStatus: {
     devicesOnline: number;
+    totalDevices: number;
     activeExperiments: number;
     dataPointsToday: number;
     activeAlerts: number;
+    testsToday: number;
   };
-  recentAlerts: Alert[];
+  recentAlerts: any[];
   performanceTrend: {
-    timestamp: Date;
+    time: string;
     efficiency: number;
+    power: number;
+  }[];
+  weeklyTrend?: {
+    day: string;
+    count: number;
+  }[];
+  deviceUtilization?: {
+    deviceName: string;
+    utilization: number;
+  }[];
+  testTypeDistribution?: {
+    category: string;
+    count: number;
+  }[];
+  runningExperiments?: {
+    id: string;
+    name: string;
+    status: string;
+    started_at: string;
+    duration: number;
+    parameters: any;
   }[];
 }
 
