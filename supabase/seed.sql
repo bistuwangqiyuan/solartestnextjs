@@ -1,5 +1,14 @@
 -- Seed data for PV Testing System
 
+-- Insert test users
+-- Note: These users need to be created through Supabase Auth first
+-- The passwords shown here are for display purposes only
+INSERT INTO public.users (id, email, role, full_name, phone, department, is_active) VALUES
+    ('11111111-1111-1111-1111-111111111111', 'admin@test.com', 'admin', '测试管理员', '13800138000', '系统管理部', true),
+    ('22222222-2222-2222-2222-222222222222', 'operator@test.com', 'operator', '测试操作员', '13800138001', '测试部', true),
+    ('33333333-3333-3333-3333-333333333333', 'observer@test.com', 'observer', '测试观察员', '13800138002', '质量部', true)
+ON CONFLICT (id) DO NOTHING;
+
 -- Insert sample devices
 INSERT INTO public.devices (id, name, type, manufacturer, model, serial_number, modbus_address, connection_params, status, calibration_date, next_calibration_date) VALUES
     ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Main Power Supply', 'power_supply', 'Keysight', 'E36313A', 'PS-001', 1, '{"baudrate": 9600, "parity": "N", "stopbits": 1, "timeout": 1000}', 'offline', '2024-06-15', '2025-06-15'),
@@ -17,10 +26,10 @@ INSERT INTO public.experiment_templates (id, name, description, parameters, is_p
     ('90123456-f123-4567-8901-234567890123', 'Bypass Diode Test', 'Test bypass diode functionality and thermal behavior', '{"test_type": "bypass_diode", "reverse_current": 1.25, "test_duration": 3600, "temperature_monitoring": true}', true, 'Safety Test');
 
 -- Insert sample experiments with real test data
-INSERT INTO public.experiments (id, name, description, parameters, status, template_id, tags, started_at, ended_at) VALUES
-    ('01234567-1234-5678-9012-345678901234', 'Module A - Initial Characterization', 'Initial performance test of Module A', '{"module_id": "MOD-A-001", "test_type": "iv_curve", "operator": "John Doe"}', 'completed', 'f6789012-bcde-f123-4567-890123456789', ARRAY['initial', 'module-a', 'performance'], '2025-01-10 09:00:00+00', '2025-01-10 09:30:00+00'),
-    ('12345678-2345-6789-0123-456789012345', 'Module B - Temperature Test', 'Temperature coefficient measurement for Module B', '{"module_id": "MOD-B-002", "test_type": "temp_coeff"}', 'completed', '67890123-cdef-1234-5678-901234567890', ARRAY['temperature', 'module-b', 'characterization'], '2025-01-11 10:00:00+00', '2025-01-11 14:00:00+00'),
-    ('23456789-3456-7890-1234-567890123456', 'Module C - Low Light Test', 'Low irradiance performance evaluation', '{"module_id": "MOD-C-003", "test_type": "low_light"}', 'running', '78901234-def1-2345-6789-012345678901', ARRAY['low-light', 'module-c', 'performance'], '2025-01-13 08:00:00+00', NULL);
+INSERT INTO public.experiments (id, name, description, parameters, status, template_id, tags, created_by, started_at, ended_at) VALUES
+    ('01234567-1234-5678-9012-345678901234', 'Module A - Initial Characterization', 'Initial performance test of Module A', '{"module_id": "MOD-A-001", "test_type": "iv_curve", "operator": "John Doe"}', 'completed', 'f6789012-bcde-f123-4567-890123456789', ARRAY['initial', 'module-a', 'performance'], '22222222-2222-2222-2222-222222222222', '2025-01-10 09:00:00+00', '2025-01-10 09:30:00+00'),
+    ('12345678-2345-6789-0123-456789012345', 'Module B - Temperature Test', 'Temperature coefficient measurement for Module B', '{"module_id": "MOD-B-002", "test_type": "temp_coeff"}', 'completed', '67890123-cdef-1234-5678-901234567890', ARRAY['temperature', 'module-b', 'characterization'], '22222222-2222-2222-2222-222222222222', '2025-01-11 10:00:00+00', '2025-01-11 14:00:00+00'),
+    ('23456789-3456-7890-1234-567890123456', 'Module C - Low Light Test', 'Low irradiance performance evaluation', '{"module_id": "MOD-C-003", "test_type": "low_light"}', 'running', '78901234-def1-2345-6789-012345678901', ARRAY['low-light', 'module-c', 'performance'], '11111111-1111-1111-1111-111111111111', '2025-01-13 08:00:00+00', NULL);
 
 -- Insert realistic test data based on the Excel files in the data folder
 -- Sample data for Module A I-V curve test

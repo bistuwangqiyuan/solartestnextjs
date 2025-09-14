@@ -11,6 +11,16 @@
 - 实验管理和报告生成
 - 用户认证和权限管理
 
+### 测试账号
+
+为方便体验系统功能，提供以下测试账号：
+
+| 角色 | 邮箱 | 密码 | 权限说明 |
+|------|------|------|----------|
+| 管理员 | admin@test.com | Test123456 | 完全访问权限，可管理用户、设备、系统设置 |
+| 操作员 | operator@test.com | Test123456 | 可创建和管理实验，查看数据，操作设备 |
+| 观察员 | observer@test.com | Test123456 | 仅可查看数据和报告，无操作权限 |
+
 ## 技术栈
 
 - **前端**: Next.js 14 (App Router), Tailwind CSS, React
@@ -85,6 +95,7 @@ If your browser doesn't navigate to the site automatically, visit [localhost:888
 - [ ] 部署到Netlify - 2025-01-13
 
 ### 已完成任务
+- [x] 添加测试账号功能 - 2025-01-14
 - [x] 创建项目PRD文档 - 2025-01-13
 - [x] 更新README文档 - 2025-01-13
 - [x] 创建Supabase数据库结构设计 - 2025-01-13
