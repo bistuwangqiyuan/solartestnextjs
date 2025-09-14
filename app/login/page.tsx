@@ -119,10 +119,69 @@ export default function LoginPage() {
             </p>
           </div>
           
-          <div className="mt-4 text-center">
-            <p className="text-xs text-[var(--text-muted)]">
-              测试账号：admin@test.com / Test123456
-            </p>
+          {/* 测试账号信息 */}
+          <div className="mt-8 p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
+            <h3 className="text-sm font-semibold text-[var(--text-primary)] mb-3">测试账号</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[var(--text-primary)]">管理员账号</p>
+                  <p className="text-xs text-[var(--text-secondary)]">admin@test.com / Test123456</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('admin@test.com');
+                    setPassword('Test123456');
+                  }}
+                  className="text-xs px-3 py-1 text-[var(--primary)] hover:text-[var(--primary-light)] border border-[var(--primary)] hover:bg-[var(--primary)]/10 rounded transition-colors"
+                >
+                  快速填充
+                </button>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[var(--text-primary)]">操作员账号</p>
+                  <p className="text-xs text-[var(--text-secondary)]">operator@test.com / Test123456</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('operator@test.com');
+                    setPassword('Test123456');
+                  }}
+                  className="text-xs px-3 py-1 text-[var(--primary)] hover:text-[var(--primary-light)] border border-[var(--primary)] hover:bg-[var(--primary)]/10 rounded transition-colors"
+                >
+                  快速填充
+                </button>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-[var(--text-primary)]">观察员账号</p>
+                  <p className="text-xs text-[var(--text-secondary)]">observer@test.com / Test123456</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEmail('observer@test.com');
+                    setPassword('Test123456');
+                  }}
+                  className="text-xs px-3 py-1 text-[var(--primary)] hover:text-[var(--primary-light)] border border-[var(--primary)] hover:bg-[var(--primary)]/10 rounded transition-colors"
+                >
+                  快速填充
+                </button>
+              </div>
+            </div>
+            <div className="mt-3 pt-3 border-t border-[var(--border)]">
+              <p className="text-xs text-[var(--text-muted)]">
+                提示：不同角色拥有不同的系统权限
+              </p>
+              <ul className="mt-1 text-xs text-[var(--text-muted)] space-y-1">
+                <li>• 管理员：完全访问权限</li>
+                <li>• 操作员：可创建和管理实验</li>
+                <li>• 观察员：仅可查看数据</li>
+              </ul>
+            </div>
           </div>
         </div>
 
