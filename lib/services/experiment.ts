@@ -4,6 +4,9 @@ import type { Database } from '@/types/database';
 type ExperimentTemplate = Database['public']['Tables']['experiment_templates']['Row'];
 type Experiment = Database['public']['Tables']['experiments']['Row'];
 
+// 临时类型修复
+const typedSupabase = supabase as any;
+
 export interface ExperimentConfig {
   name: string;
   description?: string;
@@ -15,7 +18,7 @@ export interface ExperimentConfig {
 export const experimentService = {
   // 获取实验模板列表
   async getTemplates() {
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('experiment_templates')
       .select('*')
       .eq('is_public', true)
@@ -32,7 +35,7 @@ export const experimentService = {
 
   // 获取单个模板详情
   async getTemplate(templateId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('experiment_templates')
       .select('*')
       .eq('id', templateId)
@@ -48,9 +51,9 @@ export const experimentService = {
 
   // 创建新实验
   async createExperiment(config: ExperimentConfig) {
-    const { data: userData } = await supabase.auth.getUser();
+    const { data: userData } = await typedSupabase.auth.getUser();
     
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('experiments')
       .insert({
         name: config.name,
@@ -74,7 +77,7 @@ export const experimentService = {
 
   // 启动实验
   async startExperiment(experimentId: string) {
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('experiments')
       .update({
         status: 'running',
@@ -97,7 +100,7 @@ export const experimentService = {
 
   // 停止实验
   async stopExperiment(experimentId: string, status: 'completed' | 'cancelled' | 'failed' = 'completed') {
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('experiments')
       .update({
         status,
@@ -120,7 +123,7 @@ export const experimentService = {
 
   // 获取正在运行的实验
   async getRunningExperiments() {
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('experiments')
       .select(`
         *,
@@ -140,7 +143,7 @@ export const experimentService = {
 
   // 获取最近的实验
   async getRecentExperiments(limit = 10) {
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('experiments')
       .select(`
         *,
@@ -180,7 +183,7 @@ export const experimentService = {
       }
     }
 
-    const { error } = await supabase
+    const { error } = await typedSupabase
       .from('test_data')
       .insert({
         experiment_id: experimentId,
@@ -207,7 +210,7 @@ export const experimentService = {
       timestamp: point.timestamp || new Date().toISOString()
     }));
 
-    const { error } = await supabase
+    const { error } = await typedSupabase
       .from('test_data')
       .insert(formattedData);
 
@@ -221,7 +224,7 @@ export const experimentService = {
 
   // 获取实验的实时数据（最新的N条）
   async getRealtimeData(experimentId: string, limit = 100) {
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('test_data')
       .select('*')
       .eq('experiment_id', experimentId)
@@ -239,7 +242,7 @@ export const experimentService = {
   // 计算实验结果
   async calculateExperimentResults(experimentId: string) {
     // 获取所有测试数据
-    const { data: testData, error } = await supabase
+    const { data: testData, error } = await typedSupabase
       .from('test_data')
       .select('*')
       .eq('experiment_id', experimentId)
@@ -252,22 +255,22 @@ export const experimentService = {
     // 计算统计值
     const results = {
       total_data_points: testData.length,
-      max_power: Math.max(...testData.map(d => d.power || 0)),
-      avg_power: testData.reduce((sum, d) => sum + (d.power || 0), 0) / testData.length,
-      max_voltage: Math.max(...testData.map(d => d.voltage || 0)),
-      max_current: Math.max(...testData.map(d => d.current || 0)),
-      avg_efficiency: testData.reduce((sum, d) => sum + (d.efficiency || 0), 0) / testData.length,
-      max_temperature: Math.max(...testData.map(d => d.temperature || 0)),
+      max_power: Math.max(...testData.map((d: any) => d.power || 0)),
+      avg_power: testData.reduce((sum: number, d: any) => sum + (d.power || 0), 0) / testData.length,
+      max_voltage: Math.max(...testData.map((d: any) => d.voltage || 0)),
+      max_current: Math.max(...testData.map((d: any) => d.current || 0)),
+      avg_efficiency: testData.reduce((sum: number, d: any) => sum + (d.efficiency || 0), 0) / testData.length,
+      max_temperature: Math.max(...testData.map((d: any) => d.temperature || 0)),
       test_duration: testData.length > 0 
         ? (new Date(testData[testData.length - 1].timestamp).getTime() - new Date(testData[0].timestamp).getTime()) / 1000
         : 0,
       
       // IV曲线关键点
-      open_circuit_voltage: testData.find(d => (d.current || 0) < 0.1)?.voltage || 0,
-      short_circuit_current: testData.find(d => (d.voltage || 0) < 0.1)?.current || 0,
+      open_circuit_voltage: testData.find((d: any) => (d.current || 0) < 0.1)?.voltage || 0,
+      short_circuit_current: testData.find((d: any) => (d.voltage || 0) < 0.1)?.current || 0,
       
       // 最大功率点
-      mpp: testData.reduce((max, d) => 
+      mpp: testData.reduce((max: any, d: any) => 
         (d.power || 0) > (max.power || 0) ? d : max, 
         { voltage: 0, current: 0, power: 0 }
       ),
@@ -285,7 +288,7 @@ export const experimentService = {
     }
 
     // 更新实验结果
-    await supabase
+    await typedSupabase
       .from('experiments')
       .update({ results })
       .eq('id', experimentId);
@@ -356,7 +359,7 @@ export const experimentService = {
 
     // 批量插入告警
     if (alerts.length > 0) {
-      await supabase.from('alerts').insert(alerts);
+      await typedSupabase.from('alerts').insert(alerts);
     }
 
     return alerts;
@@ -365,15 +368,15 @@ export const experimentService = {
   // 检查实验告警
   async checkExperimentAlerts(experimentId: string) {
     // 检查设备状态等
-    const { data: devices } = await supabase
+    const { data: devices } = await typedSupabase
       .from('devices')
       .select('*')
       .neq('status', 'online');
 
-    const alerts = [];
+    const alerts: any[] = [];
     
     if (devices && devices.length > 0) {
-      devices.forEach(device => {
+      devices.forEach((device: any) => {
         alerts.push({
           experiment_id: experimentId,
           device_id: device.id,
@@ -387,7 +390,7 @@ export const experimentService = {
     }
 
     if (alerts.length > 0) {
-      await supabase.from('alerts').insert(alerts);
+      await typedSupabase.from('alerts').insert(alerts);
     }
 
     return alerts;
@@ -401,9 +404,9 @@ export const experimentService = {
     category?: string;
     is_public?: boolean;
   }) {
-    const { data: userData } = await supabase.auth.getUser();
+    const { data: userData } = await typedSupabase.auth.getUser();
     
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('experiment_templates')
       .insert({
         ...template,
@@ -422,7 +425,7 @@ export const experimentService = {
 
   // 更新实验参数
   async updateExperimentParameters(experimentId: string, parameters: any) {
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('experiments')
       .update({ parameters })
       .eq('id', experimentId)
@@ -440,7 +443,7 @@ export const experimentService = {
   // 获取实验详情（包含所有相关数据）
   async getExperimentFullDetails(experimentId: string) {
     const [experiment, testDataCount, alerts] = await Promise.all([
-      supabase
+      typedSupabase
         .from('experiments')
         .select(`
           *,
@@ -450,12 +453,12 @@ export const experimentService = {
         .eq('id', experimentId)
         .single(),
       
-      supabase
+      typedSupabase
         .from('test_data')
         .select('*', { count: 'exact', head: true })
         .eq('experiment_id', experimentId),
       
-      supabase
+      typedSupabase
         .from('alerts')
         .select('*')
         .eq('experiment_id', experimentId)

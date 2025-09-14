@@ -181,7 +181,7 @@ export const dataService = {
       const wb = XLSX.utils.book_new();
 
       // 实验概览表
-      const overviewData = experiments.map(exp => ({
+      const overviewData = experiments.map((exp: any) => ({
         '实验ID': exp.id,
         '实验名称': exp.name,
         '类型': exp.template?.category || '-',
@@ -197,11 +197,11 @@ export const dataService = {
       XLSX.utils.book_append_sheet(wb, wsOverview, '实验概览');
 
       // 为每个实验创建数据表
-      for (const exp of experiments) {
+      for (const exp of experiments as any[]) {
         const testData = await this.getTestData(exp.id);
         
         if (testData.length > 0) {
-          const sheetData = testData.map(data => ({
+          const sheetData = testData.map((data: any) => ({
             '时间戳': new Date(data.timestamp).toLocaleString('zh-CN'),
             '电压(V)': data.voltage || 0,
             '电流(A)': data.current || 0,
@@ -261,10 +261,10 @@ export const dataService = {
         const experiment = await this.getExperimentDetails(expId);
         const testData = await this.getTestData(expId);
 
-        testData.forEach(data => {
+        testData.forEach((data: any) => {
           allData.push({
-            experiment_id: experiment.id,
-            experiment_name: experiment.name,
+            experiment_id: (experiment as any).id,
+            experiment_name: (experiment as any).name,
             timestamp: data.timestamp,
             voltage: data.voltage || 0,
             current: data.current || 0,
@@ -279,7 +279,7 @@ export const dataService = {
 
       // 创建CSV内容
       const headers = Object.keys(allData[0]).join(',');
-      const rows = allData.map(row => Object.values(row).join(','));
+      const rows = allData.map((row: any) => Object.values(row).join(','));
       const csv = [headers, ...rows].join('\n');
 
       // 下载文件
@@ -320,7 +320,7 @@ export const dataService = {
         // 尝试从数据中提取实验信息
         if (jsonData.length > 0) {
           // 创建新实验
-          const { data: newExp, error: expError } = await supabase
+          const { data: newExp, error: expError } = await (supabase as any)
             .from('experiments')
             .insert({
               name: sheetName,
@@ -356,7 +356,7 @@ export const dataService = {
             max_power_current: parseFloat(row['最大功率电流(A)']) || null
           }));
 
-          const { error: dataError } = await supabase
+          const { error: dataError } = await (supabase as any)
             .from('test_data')
             .insert(testDataToInsert);
 
@@ -412,7 +412,7 @@ export const dataService = {
 
     let avgDuration = 0;
     if (durationData && durationData.length > 0) {
-      const totalDuration = durationData.reduce((sum, exp) => {
+      const totalDuration = durationData.reduce((sum, exp: any) => {
         const duration = new Date(exp.ended_at!).getTime() - new Date(exp.started_at!).getTime();
         return sum + duration;
       }, 0);

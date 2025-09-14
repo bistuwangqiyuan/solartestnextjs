@@ -25,8 +25,13 @@ jest.mock('@/lib/supabase', () => ({
               id: 'test-id',
               email: 'test@example.com',
               role: 'operator',
+              is_active: true,
               created_at: '2025-01-13T00:00:00Z',
+              updated_at: '2025-01-13T00:00:00Z',
               last_login: '2025-01-13T10:00:00Z',
+              full_name: null,
+              phone: null,
+              department: null,
             },
             error: null,
           })),
@@ -77,7 +82,7 @@ describe('Auth', () => {
         error: null,
       });
 
-      const result = await auth.signUp('new@example.com', 'password123', 'New User');
+      const result = await auth.signUp('new@example.com', 'password123', { fullName: 'New User' });
       
       expect(supabase.auth.signUp).toHaveBeenCalledWith({
         email: 'new@example.com',
@@ -85,6 +90,8 @@ describe('Auth', () => {
         options: {
           data: {
             full_name: 'New User',
+            phone: undefined,
+            department: undefined,
           },
         },
       });
@@ -105,7 +112,12 @@ describe('Auth', () => {
         id: 'test-id',
         email: 'test@example.com',
         role: 'operator',
+        fullName: undefined,
+        phone: undefined,
+        department: undefined,
+        isActive: true,
         createdAt: new Date('2025-01-13T00:00:00Z'),
+        updatedAt: new Date('2025-01-13T00:00:00Z'),
         lastLogin: new Date('2025-01-13T10:00:00Z'),
       });
     });

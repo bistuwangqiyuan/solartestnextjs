@@ -160,7 +160,7 @@ export const dashboardService = {
     // 按小时聚合数据
     const hourlyData: Record<string, { efficiency: number[], power: number[] }> = {};
     
-    (data || []).forEach(record => {
+    (data || []).forEach((record: any) => {
       const hour = new Date(record.timestamp).getHours();
       const key = `${hour}:00`;
       
@@ -209,7 +209,7 @@ export const dashboardService = {
 
     const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
     
-    (data || []).forEach(record => {
+    (data || []).forEach((record: any) => {
       const day = new Date(record.created_at).getDay();
       dailyCounts[dayNames[day]]++;
     });
@@ -237,7 +237,7 @@ export const dashboardService = {
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
 
     const utilizationData = await Promise.all(
-      (devices || []).map(async (device) => {
+      (devices || []).map(async (device: any) => {
         // 计算设备在线时间（简化计算，实际应该基于日志）
         const onlineHours = device.status === 'online' ? 20 : 0; // 假设在线设备平均运行20小时
         const utilization = (onlineHours / 24) * 100;
@@ -275,10 +275,10 @@ export const dashboardService = {
     // 统计每个类别的使用次数
     const categoryCount: Record<string, number> = {};
     
-    (experiments || []).forEach(exp => {
-      const template = templates?.find(t => t.id === exp.template_id);
-      if (template && template.category) {
-        categoryCount[template.category] = (categoryCount[template.category] || 0) + 1;
+    (experiments || []).forEach((exp: any) => {
+      const template = templates?.find((t: any) => t.id === exp.template_id);
+      if (template && (template as any).category) {
+        categoryCount[(template as any).category] = (categoryCount[(template as any).category] || 0) + 1;
       }
     });
 
@@ -308,7 +308,7 @@ export const dashboardService = {
       return [];
     }
 
-    return (data || []).map(exp => ({
+    return (data || []).map((exp: any) => ({
       ...exp,
       duration: exp.started_at 
         ? Math.floor((new Date().getTime() - new Date(exp.started_at).getTime()) / 1000)
@@ -334,8 +334,8 @@ export const dashboardService = {
 
     if (!data || data.length === 0) return 0;
 
-    const passed = data.filter(exp => 
-      exp.results && typeof exp.results === 'object' && 'passed' in exp.results && exp.results.passed
+    const passed = data.filter((exp: any) => 
+      exp.results && typeof exp.results === 'object' && 'passed' in exp.results && (exp.results as any).passed
     ).length;
 
     return (passed / data.length) * 100;

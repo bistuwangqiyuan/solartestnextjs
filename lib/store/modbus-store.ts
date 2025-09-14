@@ -19,7 +19,7 @@ interface ModbusState {
   devices: ModbusDevice[];
   isPolling: boolean;
   pollingInterval: number;
-  pollingTimer?: NodeJS.Timer;
+  pollingTimer?: ReturnType<typeof setInterval>;
   
   // Actions
   loadDevices: () => Promise<void>;
@@ -49,7 +49,7 @@ export const useModbusStore = create<ModbusState>((set, get) => ({
 
       if (error) throw error;
 
-      const devices: ModbusDevice[] = (data || []).map(device => ({
+      const devices: ModbusDevice[] = (data || []).map((device: any) => ({
         id: device.id,
         name: device.name,
         type: device.type,
@@ -226,7 +226,7 @@ export const useModbusStore = create<ModbusState>((set, get) => ({
 
   updateDeviceInDatabase: async (id: string, status: string, error?: string) => {
     try {
-      await supabase
+      await (supabase as any)
         .from('devices')
         .update({
           status,
@@ -234,7 +234,8 @@ export const useModbusStore = create<ModbusState>((set, get) => ({
           last_error: error,
           updated_at: new Date().toISOString()
         })
-        .eq('id', id);
+        .eq('id', id)
+        .select();
     } catch (err) {
       console.error('Failed to update device in database:', err);
     }
