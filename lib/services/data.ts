@@ -52,6 +52,10 @@ export const dataService = {
     page?: number;
     pageSize?: number;
   }) {
+    if (!supabase) {
+      return { data: [], count: 0, error: null };
+    }
+
     let query = supabase
       .from('experiments')
       .select(`
@@ -107,6 +111,10 @@ export const dataService = {
 
   // 获取实验详情
   async getExperimentDetails(experimentId: string) {
+    if (!supabase) {
+      return { data: null, error: { message: 'Database not available' } };
+    }
+
     const { data, error } = await supabase
       .from('experiments')
       .select(`
@@ -132,6 +140,10 @@ export const dataService = {
     orderBy?: string;
     order?: 'asc' | 'desc';
   }) {
+    if (!supabase) {
+      return { data: [], error: null };
+    }
+
     let query = supabase
       .from('test_data')
       .select('*')
@@ -154,15 +166,19 @@ export const dataService = {
 
     if (error) {
       console.error('Error fetching test data:', error);
-      throw error;
+      return { data: [], error };
     }
 
-    return data || [];
+    return { data: data || [], error: null };
   },
 
   // 导出实验数据到Excel
   async exportToExcel(experimentIds: string[]) {
     try {
+      if (!supabase) {
+        throw new Error('Database not available');
+      }
+
       // 获取实验信息
       const { data: experiments } = await supabase
         .from('experiments')
@@ -198,7 +214,8 @@ export const dataService = {
 
       // 为每个实验创建数据表
       for (const exp of experiments as any[]) {
-        const testData = await this.getTestData(exp.id);
+        const testDataResult = await this.getTestData(exp.id);
+        const testData = testDataResult.data || [];
         
         if (testData.length > 0) {
           const sheetData = testData.map((data: any) => ({
@@ -259,7 +276,8 @@ export const dataService = {
 
       for (const expId of experimentIds) {
         const experiment = await this.getExperimentDetails(expId);
-        const testData = await this.getTestData(expId);
+        const testDataResult = await this.getTestData(expId);
+        const testData = testDataResult.data || [];
 
         testData.forEach((data: any) => {
           allData.push({
@@ -396,19 +414,19 @@ export const dataService = {
       completedExperiments,
       todayExperiments
     ] = await Promise.all([
-      supabase.from('experiments').select('*', { count: 'exact', head: true }),
-      supabase.from('test_data').select('*', { count: 'exact', head: true }),
-      supabase.from('experiments').select('*', { count: 'exact', head: true }).eq('status', 'completed'),
-      supabase.from('experiments').select('*', { count: 'exact', head: true }).gte('created_at', todayStart.toISOString())
+      supabase ? supabase.from('experiments').select('*', { count: 'exact', head: true }) : Promise.resolve({ count: 0 }),
+      supabase ? supabase.from('test_data').select('*', { count: 'exact', head: true }) : Promise.resolve({ count: 0 }),
+      supabase ? supabase.from('experiments').select('*', { count: 'exact', head: true }).eq('status', 'completed') : Promise.resolve({ count: 0 }),
+      supabase ? supabase.from('experiments').select('*', { count: 'exact', head: true }).gte('created_at', todayStart.toISOString()) : Promise.resolve({ count: 0 })
     ]);
 
     // 计算平均实验时长
-    const { data: durationData } = await supabase
+    const { data: durationData } = supabase ? await supabase
       .from('experiments')
       .select('started_at, ended_at')
       .not('started_at', 'is', null)
       .not('ended_at', 'is', null)
-      .eq('status', 'completed');
+      .eq('status', 'completed') : { data: [] };
 
     let avgDuration = 0;
     if (durationData && durationData.length > 0) {
@@ -435,6 +453,10 @@ export const dataService = {
   // 批量删除实验
   async deleteExperiments(experimentIds: string[]) {
     try {
+      if (!supabase) {
+        throw new Error('Database not available');
+      }
+
       // 先删除相关的测试数据
       await supabase
         .from('test_data')

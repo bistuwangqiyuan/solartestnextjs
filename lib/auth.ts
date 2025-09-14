@@ -4,6 +4,13 @@ import type { User, UserRole } from '@/types';
 // 临时类型修复
 const typedSupabase = supabase as any;
 
+// 检查Supabase是否可用
+const checkSupabaseAvailable = () => {
+  if (!supabase) {
+    throw new Error('Supabase is not configured. Please check your environment variables.');
+  }
+};
+
 export const auth = {
   // 登录
   async signIn(email: string, password: string) {
@@ -61,30 +68,36 @@ export const auth = {
 
   // 获取当前用户
   async getCurrentUser(): Promise<User | null> {
-    const { data: { user } } = await typedSupabase.auth.getUser();
-    
-    if (!user) return null;
+    try {
+      checkSupabaseAvailable();
+      const { data: { user } } = await typedSupabase.auth.getUser();
+      
+      if (!user) return null;
 
-    const { data: profile } = await typedSupabase
-      .from('users')
-      .select('*')
-      .eq('id', user.id)
-      .single();
+      const { data: profile } = await typedSupabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
-    if (!profile) return null;
+      if (!profile) return null;
 
-    return {
-      id: profile.id,
-      email: profile.email,
-      role: profile.role as UserRole,
-      fullName: profile.full_name || undefined,
-      phone: profile.phone || undefined,
-      department: profile.department || undefined,
-      isActive: profile.is_active,
-      createdAt: new Date(profile.created_at),
-      updatedAt: new Date(profile.updated_at),
-      lastLogin: profile.last_login ? new Date(profile.last_login) : undefined,
-    };
+      return {
+        id: profile.id,
+        email: profile.email,
+        role: profile.role as UserRole,
+        fullName: profile.full_name || undefined,
+        phone: profile.phone || undefined,
+        department: profile.department || undefined,
+        isActive: profile.is_active,
+        createdAt: new Date(profile.created_at),
+        updatedAt: new Date(profile.updated_at),
+        lastLogin: profile.last_login ? new Date(profile.last_login) : undefined,
+      };
+    } catch (error) {
+      console.error('getCurrentUser error:', error);
+      return null;
+    }
   },
 
   // 重置密码

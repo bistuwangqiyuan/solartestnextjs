@@ -8,18 +8,29 @@ if (!supabaseUrl || !supabaseAnonKey) {
   console.warn('Missing Supabase environment variables');
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-  },
-  global: {
-    headers: {
-      'x-application-name': 'pv-testing-system',
+// 创建默认的空客户端，如果环境变量缺失
+const createSupabaseClient = () => {
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.error('Supabase configuration is missing');
+    // 返回一个模拟客户端，避免应用崩溃
+    return null;
+  }
+  
+  return createClient<Database>(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true,
     },
-  },
-});
+    global: {
+      headers: {
+        'x-application-name': 'pv-testing-system',
+      },
+    },
+  });
+};
+
+export const supabase = createSupabaseClient();
 
 // Helper function to get the service role client (server-side only)
 export const getServiceSupabase = () => {

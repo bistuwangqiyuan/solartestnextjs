@@ -42,6 +42,24 @@ export const useModbusStore = create<ModbusState>((set, get) => ({
 
   loadDevices: async () => {
     try {
+      if (!supabase) {
+        console.warn('Supabase not available, using mock devices');
+        const mockDevices: ModbusDevice[] = [
+          {
+            id: '1',
+            name: '测试设备1',
+            type: 'PV_TESTER',
+            host: '192.168.1.100',
+            port: 502,
+            unitId: 1,
+            isConnected: true,
+            lastUpdate: new Date()
+          }
+        ];
+        set({ devices: mockDevices });
+        return;
+      }
+
       const { data, error } = await supabase
         .from('devices')
         .select('*')

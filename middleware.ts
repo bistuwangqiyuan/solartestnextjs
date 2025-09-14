@@ -7,6 +7,14 @@ const protectedRoutes = ['/dashboard', '/data', '/experiment', '/monitor', '/ana
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
+  // 在演示模式下（没有Supabase配置时），跳过认证检查
+  const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  
+  if (isDemoMode) {
+    console.log('Running in demo mode - authentication bypassed');
+    return NextResponse.next();
+  }
+  
   // 检查是否是受保护的路由
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
   
