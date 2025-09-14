@@ -1,10 +1,13 @@
 import { supabase } from './supabase';
 import type { User, UserRole } from '@/types';
 
+// 临时类型修复
+const typedSupabase = supabase as any;
+
 export const auth = {
   // 登录
   async signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await typedSupabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -13,10 +16,15 @@ export const auth = {
 
     // 更新最后登录时间
     if (data.user) {
-      await supabase
-        .from('users')
-        .update({ last_login: new Date().toISOString() })
-        .eq('id', data.user.id);
+      try {
+        await typedSupabase
+          .from('users')
+          .update({ last_login: new Date().toISOString() })
+          .eq('id', data.user.id)
+          .select();
+      } catch (error) {
+        console.error('Failed to update last login:', error);
+      }
     }
 
     return data;
@@ -28,7 +36,7 @@ export const auth = {
     phone?: string;
     department?: string;
   }) {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await typedSupabase.auth.signUp({
       email,
       password,
       options: {
@@ -47,17 +55,17 @@ export const auth = {
 
   // 登出
   async signOut() {
-    const { error } = await supabase.auth.signOut();
+    const { error } = await typedSupabase.auth.signOut();
     if (error) throw error;
   },
 
   // 获取当前用户
   async getCurrentUser(): Promise<User | null> {
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user } } = await typedSupabase.auth.getUser();
     
     if (!user) return null;
 
-    const { data: profile } = await supabase
+    const { data: profile } = await typedSupabase
       .from('users')
       .select('*')
       .eq('id', user.id)
@@ -81,7 +89,7 @@ export const auth = {
 
   // 重置密码
   async resetPassword(email: string) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await typedSupabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/auth/reset-password`,
     });
 
@@ -90,7 +98,7 @@ export const auth = {
 
   // 更新密码
   async updatePassword(newPassword: string) {
-    const { error } = await supabase.auth.updateUser({
+    const { error } = await typedSupabase.auth.updateUser({
       password: newPassword,
     });
 
@@ -103,7 +111,7 @@ export const auth = {
     phone?: string;
     department?: string;
   }) {
-    const { error } = await supabase
+    const { error } = await typedSupabase
       .from('users')
       .update({
         full_name: updates.fullName,
@@ -111,7 +119,8 @@ export const auth = {
         department: updates.department,
         updated_at: new Date().toISOString(),
       })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select();
 
     if (error) throw error;
   },
@@ -123,10 +132,11 @@ export const auth = {
       throw new Error('Unauthorized: Only admins can update user roles');
     }
 
-    const { error } = await supabase
+    const { error } = await typedSupabase
       .from('users')
       .update({ role, updated_at: new Date().toISOString() })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select();
 
     if (error) throw error;
   },
@@ -138,10 +148,11 @@ export const auth = {
       throw new Error('Unauthorized: Only admins can disable/enable users');
     }
 
-    const { error } = await supabase
+    const { error } = await typedSupabase
       .from('users')
       .update({ is_active: isActive, updated_at: new Date().toISOString() })
-      .eq('id', userId);
+      .eq('id', userId)
+      .select();
 
     if (error) throw error;
   },
@@ -153,14 +164,14 @@ export const auth = {
       throw new Error('Unauthorized: Only admins can view all users');
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await typedSupabase
       .from('users')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) throw error;
 
-    return data.map(profile => ({
+    return data.map((profile: any) => ({
       id: profile.id,
       email: profile.email,
       role: profile.role as UserRole,
@@ -190,12 +201,12 @@ export const auth = {
 
   // 监听认证状态变化
   onAuthStateChange(callback: (event: string, session: any) => void) {
-    return supabase.auth.onAuthStateChange(callback);
+    return typedSupabase.auth.onAuthStateChange(callback);
   },
 
   // 验证邮箱
   async verifyEmail(token: string) {
-    const { error } = await supabase.auth.verifyOtp({
+    const { error } = await typedSupabase.auth.verifyOtp({
       token_hash: token,
       type: 'email',
     });
@@ -205,7 +216,7 @@ export const auth = {
 
   // 重新发送验证邮件
   async resendVerificationEmail(email: string) {
-    const { error } = await supabase.auth.resend({
+    const { error } = await typedSupabase.auth.resend({
       type: 'signup',
       email,
     });

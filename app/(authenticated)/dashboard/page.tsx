@@ -9,7 +9,7 @@ import {
   AlertTriangle,
   TrendingUp,
   Database,
-  Flask
+  Beaker
 } from 'lucide-react';
 import { DataDisplay } from '@/components/ui/data-display';
 import { Card } from '@/components/ui/card';
@@ -141,7 +141,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between p-4 bg-[var(--bg-primary)] rounded-lg">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                      <Flask className="w-5 h-5 text-blue-500" />
+                      <Beaker className="w-5 h-5 text-blue-500" />
                     </div>
                     <div>
                       <p className="text-sm text-[var(--text-secondary)]">活跃实验</p>
@@ -222,7 +222,7 @@ export default function DashboardPage() {
           <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-4">快速操作</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <button className="industrial-button">
-              <Flask className="w-4 h-4" />
+              <Beaker className="w-4 h-4" />
               新建实验
             </button>
             <button className="industrial-button">

@@ -125,7 +125,7 @@ export default function AnalysisPage() {
               
               <div className="h-96">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={ivCurveData}>
+                  <RechartsLineChart data={ivCurveData}>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                     <XAxis 
                       dataKey="voltage" 
@@ -169,7 +169,7 @@ export default function AnalysisPage() {
                       strokeWidth={2}
                       dot={false}
                     />
-                  </LineChart>
+                  </RechartsLineChart>
                 </ResponsiveContainer>
               </div>
               
@@ -222,7 +222,7 @@ export default function AnalysisPage() {
             
             <div className="h-96">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={efficiencyTrendData}>
+                <RechartsLineChart data={efficiencyTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                   <XAxis 
                     dataKey="date" 
@@ -266,7 +266,7 @@ export default function AnalysisPage() {
                     strokeDasharray="5 5"
                     dot={false}
                   />
-                </LineChart>
+                </RechartsLineChart>
               </ResponsiveContainer>
             </div>
             
