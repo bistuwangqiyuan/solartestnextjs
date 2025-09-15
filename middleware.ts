@@ -7,30 +7,8 @@ const protectedRoutes = ['/dashboard', '/data', '/experiment', '/monitor', '/ana
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
-  // 在演示模式下（没有Supabase配置时），跳过认证检查
-  const isDemoMode = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  if (isDemoMode) {
-    console.log('Running in demo mode - authentication bypassed');
-    return NextResponse.next();
-  }
-  
-  // 检查是否是受保护的路由
-  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-  
-  // 从cookie中获取认证信息
-  const hasAuth = request.cookies.has('auth-storage');
-  
-  if (isProtectedRoute && !hasAuth) {
-    // 如果是受保护的路由但没有认证，重定向到登录页
-    return NextResponse.redirect(new URL('/login', request.url));
-  }
-  
-  if (pathname === '/login' && hasAuth) {
-    // 如果已经登录但访问登录页，重定向到仪表板
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-  
+  // 去掉权限管理，所有人都可以访问所有页面
+  console.log('Public access mode - all routes accessible');
   return NextResponse.next();
 }
 

@@ -1,25 +1,17 @@
 import { ReactNode } from 'react';
-import { redirect } from 'next/navigation';
-import { auth } from '@/lib/auth';
 import { Navigation } from '@/components/layout/navigation';
 
-export default async function AuthenticatedLayout({
+export default function AuthenticatedLayout({
   children,
 }: {
   children: ReactNode;
 }) {
-  const user = await auth.getCurrentUser();
-  
-  if (!user) {
-    redirect('/login');
-  }
-
   return (
-    <>
+    <div className="min-h-screen bg-[var(--bg-primary)]">
       <Navigation />
-      <main className="flex-1">
+      <main className="ml-64">
         {children}
       </main>
-    </>
+    </div>
   );
 }

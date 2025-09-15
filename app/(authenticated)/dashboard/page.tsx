@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Activity, 
   Zap, 
@@ -44,6 +45,7 @@ function useRealtimeData() {
 }
 
 export default function DashboardPage() {
+  const router = useRouter();
   const realtimeData = useRealtimeData();
   
   const systemStatus = {
@@ -221,19 +223,31 @@ export default function DashboardPage() {
         <div className="p-6">
           <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-4">快速操作</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="industrial-button">
+            <button 
+              className="industrial-button"
+              onClick={() => router.push('/experiment')}
+            >
               <Beaker className="w-4 h-4" />
               新建实验
             </button>
-            <button className="industrial-button">
+            <button 
+              className="industrial-button"
+              onClick={() => router.push('/data')}
+            >
               <Database className="w-4 h-4" />
               导出数据
             </button>
-            <button className="industrial-button">
+            <button 
+              className="industrial-button"
+              onClick={() => router.push('/monitor')}
+            >
               <Activity className="w-4 h-4" />
               设备检查
             </button>
-            <button className="industrial-button">
+            <button 
+              className="industrial-button"
+              onClick={() => router.push('/alerts')}
+            >
               <AlertTriangle className="w-4 h-4" />
               查看告警
             </button>

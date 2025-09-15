@@ -7,34 +7,25 @@ const typedSupabase = supabase as any;
 // 检查Supabase是否可用
 const checkSupabaseAvailable = () => {
   if (!supabase) {
-    throw new Error('Supabase is not configured. Please check your environment variables.');
+    console.warn('Supabase is not configured. Running in demo mode.');
+    return false;
   }
+  return true;
 };
 
 export const auth = {
   // 登录
   async signIn(email: string, password: string) {
-    const { data, error } = await typedSupabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    if (error) throw error;
-
-    // 更新最后登录时间
-    if (data.user) {
-      try {
-        await typedSupabase
-          .from('users')
-          .update({ last_login: new Date().toISOString() })
-          .eq('id', data.user.id)
-          .select();
-      } catch (error) {
-        console.error('Failed to update last login:', error);
+    // 去掉权限管理，接受任何凭据
+    return {
+      user: {
+        id: 'public-user',
+        email: email,
+      },
+      session: {
+        access_token: 'public-token',
       }
-    }
-
-    return data;
+    };
   },
 
   // 注册
@@ -69,30 +60,15 @@ export const auth = {
   // 获取当前用户
   async getCurrentUser(): Promise<User | null> {
     try {
-      checkSupabaseAvailable();
-      const { data: { user } } = await typedSupabase.auth.getUser();
-      
-      if (!user) return null;
-
-      const { data: profile } = await typedSupabase
-        .from('users')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-
-      if (!profile) return null;
-
+      // 始终返回管理员用户，去掉权限管理
       return {
-        id: profile.id,
-        email: profile.email,
-        role: profile.role as UserRole,
-        fullName: profile.full_name || undefined,
-        phone: profile.phone || undefined,
-        department: profile.department || undefined,
-        isActive: profile.is_active,
-        createdAt: new Date(profile.created_at),
-        updatedAt: new Date(profile.updated_at),
-        lastLogin: profile.last_login ? new Date(profile.last_login) : undefined,
+        id: 'public-user',
+        email: 'public@example.com',
+        role: 'admin' as UserRole,
+        fullName: 'Public User',
+        isActive: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
     } catch (error) {
       console.error('getCurrentUser error:', error);

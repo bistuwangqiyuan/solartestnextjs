@@ -78,7 +78,17 @@ export const useAuthStore = create<AuthState>()(
           const user = await auth.getCurrentUser();
           set({ user, isLoading: false });
         } catch (error: any) {
-          set({ user: null, isLoading: false });
+          // 始终设置公共用户，去掉权限管理
+          const publicUser: User = {
+            id: 'public-user',
+            email: 'public@example.com',
+            role: 'admin',
+            fullName: 'Public User',
+            isActive: true,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          };
+          set({ user: publicUser, isLoading: false });
         }
       },
 

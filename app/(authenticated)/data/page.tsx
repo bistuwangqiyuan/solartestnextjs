@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Search, 
   Download, 
@@ -13,57 +13,80 @@ import {
 import { Card } from '@/components/ui/card';
 import { formatDate } from '@/lib/utils';
 
-// 模拟数据
-const mockData = [
-  {
-    id: '1',
-    experimentName: '晶硅组件测试-001',
-    date: new Date('2025-01-13T09:15:00'),
-    voltage: 39.9,
-    current: 9.02,
-    power: 359.9,
-    temperature: 25.3,
-    irradiance: 1000,
-    efficiency: 19.2,
-    dataPoints: 3600,
-  },
-  {
-    id: '2',
-    experimentName: '薄膜组件测试-002',
-    date: new Date('2025-01-13T14:30:00'),
-    voltage: 20.2,
-    current: 6.5,
-    power: 131.3,
-    temperature: 28.7,
-    irradiance: 850,
-    efficiency: 15.8,
-    dataPoints: 2400,
-  },
-  {
-    id: '3',
-    experimentName: '双面组件测试-003',
-    date: new Date('2025-01-12T10:00:00'),
-    voltage: 45.5,
-    current: 8.8,
-    power: 400.4,
-    temperature: 26.1,
-    irradiance: 950,
-    efficiency: 20.1,
-    dataPoints: 4200,
-  },
-];
+// 生成1242条关断器测试数据
+const generateMockData = () => {
+  const data = [];
+  const testTypes = [
+    '关断器测试-001', '关断器测试-002', '关断器测试-003', 
+    '关断器测试-004', '关断器测试-005', '关断器测试-006',
+    '关断器测试-007', '关断器测试-008', '关断器测试-009', '关断器测试-010'
+  ];
+  
+  // 生成日期范围：从2005年5月1日到9月8日
+  const startDate = new Date('2005-05-01');
+  const endDate = new Date('2005-09-08');
+  
+  for (let i = 0; i < 1242; i++) {
+    // 随机选择测试类型
+    const testType = testTypes[Math.floor(Math.random() * testTypes.length)];
+    
+    // 生成随机日期
+    const randomTime = startDate.getTime() + Math.random() * (endDate.getTime() - startDate.getTime());
+    const date = new Date(randomTime);
+    
+    // 生成测试参数
+    const voltage = 15 + Math.random() * 35; // 15-50V
+    const current = 1 + Math.random() * 12; // 1-13A
+    const power = voltage * current;
+    const temperature = 20 + Math.random() * 15; // 20-35°C
+    const irradiance = 200 + Math.random() * 800; // 200-1000 W/m²
+    const efficiency = 12 + Math.random() * 8; // 12-20%
+    const dataPoints = 1000 + Math.floor(Math.random() * 5000); // 1000-6000个数据点
+    
+    data.push({
+      id: (i + 1).toString(),
+      experimentName: `${testType}-${String(i + 1).padStart(4, '0')}`,
+      date,
+      voltage: Math.round(voltage * 10) / 10,
+      current: Math.round(current * 100) / 100,
+      power: Math.round(power * 10) / 10,
+      temperature: Math.round(temperature * 10) / 10,
+      irradiance: Math.round(irradiance),
+      efficiency: Math.round(efficiency * 10) / 10,
+      dataPoints,
+    });
+  }
+  
+  // 按日期排序，最新的在前面
+  return data.sort((a, b) => b.date.getTime() - a.date.getTime());
+};
+
+const mockData = generateMockData();
 
 export default function DataPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedData, setSelectedData] = useState<string[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(20); // 每页显示20条数据
 
   const filteredData = mockData.filter(item =>
     item.experimentName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  // 计算分页数据
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentData = filteredData.slice(startIndex, endIndex);
+
+  // 重置到第一页当搜索条件改变时
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.checked) {
-      setSelectedData(filteredData.map(item => item.id));
+      setSelectedData(currentData.map(item => item.id));
     } else {
       setSelectedData([]);
     }
@@ -136,7 +159,7 @@ export default function DataPage() {
                 <th className="w-12">
                   <input
                     type="checkbox"
-                    checked={selectedData.length === filteredData.length && filteredData.length > 0}
+                    checked={selectedData.length === currentData.length && currentData.length > 0}
                     onChange={handleSelectAll}
                     className="rounded border-[var(--border)] bg-[var(--bg-primary)]"
                   />
@@ -154,7 +177,7 @@ export default function DataPage() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((item) => (
+              {currentData.map((item) => (
                 <tr key={item.id}>
                   <td>
                     <input
@@ -189,7 +212,7 @@ export default function DataPage() {
             </tbody>
           </table>
           
-          {filteredData.length === 0 && (
+          {currentData.length === 0 && (
             <div className="text-center py-12">
               <FileSpreadsheet className="w-12 h-12 text-[var(--text-muted)] mx-auto mb-4" />
               <p className="text-[var(--text-muted)]">暂无数据</p>
@@ -202,16 +225,46 @@ export default function DataPage() {
       {filteredData.length > 0 && (
         <div className="flex items-center justify-between">
           <p className="text-sm text-[var(--text-secondary)]">
-            显示 1-{filteredData.length} 条，共 {filteredData.length} 条
+            显示 {startIndex + 1}-{Math.min(endIndex, filteredData.length)} 条，共 {filteredData.length} 条
           </p>
           <div className="flex gap-2">
-            <button className="industrial-button" disabled>
+            <button 
+              className="industrial-button" 
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(currentPage - 1)}
+            >
               上一页
             </button>
-            <button className="industrial-button primary">
-              1
-            </button>
-            <button className="industrial-button">
+            
+            {/* 页码显示 */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+              
+              return (
+                <button
+                  key={pageNum}
+                  className={`industrial-button ${currentPage === pageNum ? 'primary' : ''}`}
+                  onClick={() => setCurrentPage(pageNum)}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+            
+            <button 
+              className="industrial-button"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(currentPage + 1)}
+            >
               下一页
             </button>
           </div>

@@ -26,34 +26,67 @@ import {
   Scatter
 } from 'recharts';
 
-// IV曲线数据
+// 关断器测试曲线数据 - 电流和功率保持相同下降趋势
 const ivCurveData = Array.from({ length: 50 }, (_, i) => {
   const voltage = i * 0.8;
-  const current = Math.max(0, 9 - voltage * 0.18 - Math.random() * 0.2);
+  // 模拟关断器测试：电流在关断前保持较高值，关断后快速下降
+  let current;
+  
+  // 模拟真实的I-V特性曲线，确保电流和功率趋势一致
+  if (voltage < 16) {
+    // 关断前：电流保持较高水平，功率也保持较高水平
+    current = 9.5 - (voltage / 16) * 0.5 + Math.random() * 0.2 - 0.1;
+  } else if (voltage < 24) {
+    // 关断区间：电流快速下降，功率也快速下降
+    const progress = (voltage - 16) / 8;
+    current = 9 - progress * 7.5 + Math.random() * 0.3 - 0.15;
+  } else {
+    // 关断后：电流稳定在较低水平，功率也稳定在较低水平
+    current = 1.2 + Math.random() * 0.2 - 0.1;
+  }
+  
+  const finalCurrent = Math.max(0.1, current); // 确保电流不会完全为0
+  
+  // 计算功率，但调整以确保与电流保持相同趋势
+  let power;
+  if (voltage < 16) {
+    // 关断前：功率随电流变化，但趋势与电流一致
+    power = voltage * finalCurrent;
+  } else if (voltage < 24) {
+    // 关断区间：功率快速下降，下降幅度与电流一致
+    const progress = (voltage - 16) / 8;
+    const maxPower = 16 * 9; // 关断前的最大功率
+    const minPower = 24 * 1.5; // 关断后的最小功率
+    power = maxPower - progress * (maxPower - minPower) + Math.random() * 5 - 2.5;
+  } else {
+    // 关断后：功率稳定在较低水平
+    power = voltage * finalCurrent * 0.8 + Math.random() * 2 - 1; // 稍微降低功率系数
+  }
+  
   return {
     voltage,
-    current,
-    power: voltage * current
+    current: finalCurrent,
+    power: Math.max(0.1, power) // 确保功率不会完全为0
   };
 });
 
-// 效率趋势数据
+// 关断器测试效率趋势数据 - 显示关断前后的效率变化
 const efficiencyTrendData = [
-  { date: '2025-01-07', efficiency: 18.5, temperature: 25 },
-  { date: '2025-01-08', efficiency: 18.8, temperature: 24 },
-  { date: '2025-01-09', efficiency: 19.0, temperature: 23 },
-  { date: '2025-01-10', efficiency: 18.6, temperature: 26 },
-  { date: '2025-01-11', efficiency: 18.9, temperature: 24 },
-  { date: '2025-01-12', efficiency: 19.2, temperature: 22 },
-  { date: '2025-01-13', efficiency: 19.1, temperature: 23 },
+  { date: '2005-08-01', efficiency: 19.2, temperature: 25, status: '正常' },
+  { date: '2005-08-02', efficiency: 19.0, temperature: 24, status: '正常' },
+  { date: '2005-08-03', efficiency: 19.1, temperature: 23, status: '正常' },
+  { date: '2005-08-04', efficiency: 19.3, temperature: 26, status: '正常' },
+  { date: '2005-08-05', efficiency: 19.0, temperature: 24, status: '正常' },
+  { date: '2005-08-06', efficiency: 19.2, temperature: 22, status: '正常' },
+  { date: '2025-01-13', efficiency: 2.1, temperature: 23, status: '关断后' }, // 关断后效率大幅下降
 ];
 
-// 组件类型分布
+// 关断器测试类型分布 - 1242条数据
 const moduleTypeData = [
-  { name: '单晶硅', value: 45, count: 180 },
-  { name: '多晶硅', value: 30, count: 120 },
-  { name: '薄膜', value: 15, count: 60 },
-  { name: '其他', value: 10, count: 40 },
+  { name: '正常工况', value: 79.6, count: 989 }, // 989条
+  { name: '耐压测试', value: 1.9, count: 24 },   // 24条
+  { name: '泄露电流', value: 1.5, count: 18 },   // 18条
+  { name: '异常工况', value: 17.0, count: 211 }, // 剩余211条
 ];
 
 export default function AnalysisPage() {
@@ -176,20 +209,20 @@ export default function AnalysisPage() {
               {/* 关键参数 */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[var(--border)]">
                 <div>
-                  <p className="text-sm text-[var(--text-secondary)]">开路电压 (Voc)</p>
+                  <p className="text-sm text-[var(--text-secondary)]">关断前电压</p>
                   <p className="text-xl font-semibold text-[var(--text-primary)]">39.8 V</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[var(--text-secondary)]">短路电流 (Isc)</p>
+                  <p className="text-sm text-[var(--text-secondary)]">关断前电流</p>
                   <p className="text-xl font-semibold text-[var(--text-primary)]">9.12 A</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[var(--text-secondary)]">最大功率 (Pmax)</p>
-                  <p className="text-xl font-semibold text-[var(--text-primary)]">320.5 W</p>
+                  <p className="text-sm text-[var(--text-secondary)]">关断后电流</p>
+                  <p className="text-xl font-semibold text-red-500">1.2 A</p>
                 </div>
                 <div>
-                  <p className="text-sm text-[var(--text-secondary)]">填充因子 (FF)</p>
-                  <p className="text-xl font-semibold text-[var(--text-primary)]">0.78</p>
+                  <p className="text-sm text-[var(--text-secondary)]">关断时间</p>
+                  <p className="text-xl font-semibold text-[var(--text-primary)]">0.4s</p>
                 </div>
               </div>
             </div>
@@ -231,7 +264,7 @@ export default function AnalysisPage() {
                   <YAxis 
                     yAxisId="left"
                     stroke="var(--text-muted)"
-                    domain={[18, 20]}
+                    domain={[0, 20]}
                   />
                   <YAxis 
                     yAxisId="right"
@@ -274,15 +307,15 @@ export default function AnalysisPage() {
             <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-[var(--border)]">
               <div>
                 <p className="text-sm text-[var(--text-secondary)]">平均效率</p>
-                <p className="text-xl font-semibold text-[var(--text-primary)]">18.9%</p>
+                <p className="text-xl font-semibold text-[var(--text-primary)]">15.1%</p>
               </div>
               <div>
                 <p className="text-sm text-[var(--text-secondary)]">最高效率</p>
-                <p className="text-xl font-semibold text-green-500">19.2%</p>
+                <p className="text-xl font-semibold text-green-500">19.3%</p>
               </div>
               <div>
-                <p className="text-sm text-[var(--text-secondary)]">最低效率</p>
-                <p className="text-xl font-semibold text-orange-500">18.5%</p>
+                <p className="text-sm text-[var(--text-secondary)]">关断后效率</p>
+                <p className="text-xl font-semibold text-red-500">2.1%</p>
               </div>
             </div>
           </div>
@@ -295,7 +328,7 @@ export default function AnalysisPage() {
           <Card>
             <div className="p-6">
               <h2 className="text-xl font-semibold text-[var(--text-primary)] mb-4">
-                组件类型分布
+                关断器测试类型分布
               </h2>
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
@@ -346,6 +379,132 @@ export default function AnalysisPage() {
             </div>
           </Card>
         </div>
+      )}
+
+      {/* 对比分析 */}
+      {selectedAnalysis === 'comparison' && (
+        <Card>
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-[var(--text-primary)]">电流下降曲线对比分析</h2>
+              <button className="industrial-button">
+                <Download className="w-4 h-4" />
+                导出对比数据
+              </button>
+            </div>
+            
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <RechartsLineChart data={[
+                  // 第一条曲线：15A在0.8秒内下降到1A左右
+                  ...Array.from({ length: 40 }, (_, i) => {
+                    const time = i * 0.02; // 0.02秒间隔
+                    let current;
+                    if (time < 0.8) {
+                      // 0.8秒内从15A下降到1A
+                      const progress = time / 0.8;
+                      current = 15 - progress * 14 + Math.random() * 0.2 - 0.1;
+                    } else {
+                      // 0.8秒后稳定在1A左右
+                      current = 1 + Math.random() * 0.2 - 0.1;
+                    }
+                    return {
+                      time,
+                      curve1: Math.max(0, current),
+                      curve2: null
+                    };
+                  }),
+                  // 第二条曲线：30A在0.98秒内下降到1A左右
+                  ...Array.from({ length: 50 }, (_, i) => {
+                    const time = i * 0.02; // 0.02秒间隔
+                    let current;
+                    if (time < 0.98) {
+                      // 0.98秒内从30A下降到1A
+                      const progress = time / 0.98;
+                      current = 30 - progress * 29 + Math.random() * 0.3 - 0.15;
+                    } else {
+                      // 0.98秒后稳定在1A左右
+                      current = 1 + Math.random() * 0.2 - 0.1;
+                    }
+                    return {
+                      time,
+                      curve1: null,
+                      curve2: Math.max(0, current)
+                    };
+                  })
+                ].filter(item => item.curve1 !== null || item.curve2 !== null)}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis 
+                    dataKey="time" 
+                    stroke="var(--text-muted)"
+                    label={{ value: '时间 (秒)', position: 'insideBottom', offset: -5 }}
+                  />
+                  <YAxis 
+                    stroke="var(--text-muted)"
+                    label={{ value: '电流 (A)', angle: -90, position: 'insideLeft' }}
+                  />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'var(--bg-secondary)',
+                      border: '1px solid var(--border)',
+                      borderRadius: '8px'
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="curve1"
+                    stroke="#3b82f6"
+                    name="测试曲线1 (15A→1A)"
+                    strokeWidth={3}
+                    dot={false}
+                    connectNulls={false}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="curve2"
+                    stroke="#ef4444"
+                    name="测试曲线2 (30A→1A)"
+                    strokeWidth={3}
+                    dot={false}
+                    connectNulls={false}
+                  />
+                </RechartsLineChart>
+              </ResponsiveContainer>
+            </div>
+            
+            {/* 对比分析结果 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[var(--border)]">
+              <div>
+                <p className="text-sm text-[var(--text-secondary)]">曲线1初始电流</p>
+                <p className="text-xl font-semibold text-blue-500">15.0 A</p>
+              </div>
+              <div>
+                <p className="text-sm text-[var(--text-secondary)]">曲线1关断时间</p>
+                <p className="text-xl font-semibold text-blue-500">0.8s</p>
+              </div>
+              <div>
+                <p className="text-sm text-[var(--text-secondary)]">曲线2初始电流</p>
+                <p className="text-xl font-semibold text-red-500">30.0 A</p>
+              </div>
+              <div>
+                <p className="text-sm text-[var(--text-secondary)]">曲线2关断时间</p>
+                <p className="text-xl font-semibold text-red-500">0.98s</p>
+              </div>
+            </div>
+
+            {/* 分析结论 */}
+            <div className="mt-6 p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
+              <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">分析结论</h3>
+              <div className="space-y-2 text-[var(--text-secondary)]">
+                <p>• <strong className="text-[var(--text-primary)]">关断性能对比：</strong>曲线1关断时间更短(0.8s vs 0.98s)，响应更快</p>
+                <p>• <strong className="text-[var(--text-primary)]">电流下降趋势：</strong>两条曲线都表现出良好的线性下降特性</p>
+                <p>• <strong className="text-[var(--text-primary)]">最终稳定值：</strong>两条曲线最终都稳定在1A左右，符合预期</p>
+                <p>• <strong className="text-[var(--text-primary)]">性能评估：</strong>曲线1在高电流下表现更优，关断效率更高</p>
+              </div>
+            </div>
+          </div>
+        </Card>
       )}
     </div>
   );

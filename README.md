@@ -82,7 +82,7 @@ If your browser doesn't navigate to the site automatically, visit [localhost:888
 ## TASK 任务跟踪
 
 ### 待办任务
-- [ ] 部署到Netlify - 2025-01-13
+- [x] 部署到Netlify - 2025-01-13
 
 ### 已完成任务
 - [x] 创建项目PRD文档 - 2025-01-13
@@ -97,6 +97,8 @@ If your browser doesn't navigate to the site automatically, visit [localhost:888
 - [x] 实现数据分析和可视化功能 - 2025-01-13
 - [x] 开发系统设置页面 - 2025-01-13
 - [x] 编写单元测试 - 2025-01-13
+- [x] 部署到Netlify并完成功能测试 - 2025-01-13
+- [x] 去掉用户权限管理，开放公共访问 - 2025-01-13
 
 ### 开发中发现的任务
 - [ ] 配置Supabase环境变量和初始化数据库

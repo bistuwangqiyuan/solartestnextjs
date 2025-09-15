@@ -44,7 +44,7 @@ const mockDevices = [
   { id: '1', name: '电源设备-01', type: 'power_supply', status: 'online' },
   { id: '2', name: '电子负载-01', type: 'electronic_load', status: 'online' },
   { id: '3', name: '温度传感器-01', type: 'temperature_sensor', status: 'online' },
-  { id: '4', name: '光照传感器-01', type: 'irradiance_sensor', status: 'offline' },
+  { id: '4', name: '关断器-01', type: 'disconnector', status: 'offline' },
 ];
 
 export default function MonitorPage() {
@@ -118,7 +118,7 @@ export default function MonitorPage() {
                 <p className="text-sm text-[var(--text-secondary)]">
                   类型: {device.type === 'power_supply' ? '电源' : 
                         device.type === 'electronic_load' ? '电子负载' :
-                        device.type === 'temperature_sensor' ? '温度传感器' : '光照传感器'}
+                        device.type === 'temperature_sensor' ? '温度传感器' : '关断器'}
                 </p>
                 <div className="mt-2">
                   <span className={`status-indicator ${device.status}`}>

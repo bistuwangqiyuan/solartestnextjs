@@ -29,7 +29,7 @@ export function Navigation() {
   const { user, signOut } = useAuthStore();
 
   return (
-    <nav className="bg-[var(--bg-secondary)] border-r border-[var(--border)]">
+    <nav className="w-64 bg-[var(--bg-secondary)] border-r border-[var(--border)] fixed left-0 top-0 h-full z-50">
       <div className="flex h-16 items-center justify-between px-4 border-b border-[var(--border)]">
         <Link href="/dashboard" className="flex items-center space-x-2 no-underline">
           <div className="w-8 h-8 bg-[var(--primary)] rounded-lg flex items-center justify-center">

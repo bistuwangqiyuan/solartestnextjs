@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuthStore } from '@/lib/store/auth-store';
@@ -8,9 +8,21 @@ import { Mail, Lock, AlertCircle } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, error, isLoading, clearError } = useAuthStore();
+  const { signIn, error, isLoading, clearError, checkAuth, user } = useAuthStore();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  // 自动检查认证状态，所有人都可以使用
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  // 如果用户已登录，重定向到仪表板
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -121,7 +133,10 @@ export default function LoginPage() {
           
           <div className="mt-4 text-center">
             <p className="text-xs text-[var(--text-muted)]">
-              测试账号：admin@test.com / Test123456
+              测试账号：1404708595@qq.com / 13426086861@139.com
+            </p>
+            <p className="text-xs text-[var(--text-muted)] mt-1">
+              请联系管理员获取密码
             </p>
           </div>
         </div>

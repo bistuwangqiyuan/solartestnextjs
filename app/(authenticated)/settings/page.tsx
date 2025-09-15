@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Save,
   Globe,
@@ -9,21 +9,34 @@ import {
   Network,
   Shield,
   Users,
-  AlertCircle
+  AlertCircle,
+  Palette
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Theme, themes, applyTheme, getStoredTheme } from '@/lib/theme';
 
 export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('general');
   const [saved, setSaved] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<Theme>('dark');
+
+  useEffect(() => {
+    setCurrentTheme(getStoredTheme());
+  }, []);
 
   const handleSave = () => {
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   };
 
+  const handleThemeChange = (theme: Theme) => {
+    setCurrentTheme(theme);
+    applyTheme(theme);
+  };
+
   const tabs = [
     { id: 'general', name: '常规设置', icon: Globe },
+    { id: 'theme', name: '主题设置', icon: Palette },
     { id: 'data', name: '数据采集', icon: Database },
     { id: 'alerts', name: '告警设置', icon: Bell },
     { id: 'modbus', name: 'Modbus配置', icon: Network },
@@ -115,6 +128,78 @@ export default function SettingsPage() {
                       <option value="DD/MM/YYYY">13/01/2025</option>
                       <option value="MM/DD/YYYY">01/13/2025</option>
                     </select>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 主题设置 */}
+            {activeTab === 'theme' && (
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-[var(--text-primary)]">主题设置</h2>
+                <p className="text-[var(--text-secondary)]">选择您喜欢的界面主题颜色</p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {Object.entries(themes).map(([themeKey, theme]) => (
+                    <div
+                      key={themeKey}
+                      className={`relative border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                        currentTheme === themeKey
+                          ? 'border-[var(--primary)] bg-[var(--primary)]/5'
+                          : 'border-[var(--border)] hover:border-[var(--primary)]/50'
+                      }`}
+                      onClick={() => handleThemeChange(themeKey as Theme)}
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-semibold text-[var(--text-primary)]">
+                          {theme.name}
+                        </h3>
+                        {currentTheme === themeKey && (
+                          <div className="w-5 h-5 rounded-full bg-[var(--primary)] flex items-center justify-center">
+                            <div className="w-2 h-2 rounded-full bg-white"></div>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <p className="text-sm text-[var(--text-secondary)] mb-4">
+                        {theme.description}
+                      </p>
+                      
+                      {/* 主题预览 */}
+                      <div className="space-y-2">
+                        <div 
+                          className="h-3 rounded"
+                          style={{ backgroundColor: theme.css['--primary'] }}
+                        />
+                        <div className="flex gap-1">
+                          <div 
+                            className="h-2 rounded flex-1"
+                            style={{ backgroundColor: theme.css['--chart-1'] }}
+                          />
+                          <div 
+                            className="h-2 rounded flex-1"
+                            style={{ backgroundColor: theme.css['--chart-2'] }}
+                          />
+                          <div 
+                            className="h-2 rounded flex-1"
+                            style={{ backgroundColor: theme.css['--chart-3'] }}
+                          />
+                          <div 
+                            className="h-2 rounded flex-1"
+                            style={{ backgroundColor: theme.css['--chart-4'] }}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                <div className="p-4 bg-[var(--bg-secondary)] rounded-lg border border-[var(--border)]">
+                  <h3 className="font-semibold text-[var(--text-primary)] mb-2">主题说明</h3>
+                  <div className="space-y-2 text-sm text-[var(--text-secondary)]">
+                    <p>• <strong className="text-[var(--text-primary)]">黑色主题：</strong>默认深色工业风格，适合长时间使用，减少眼部疲劳</p>
+                    <p>• <strong className="text-[var(--text-primary)]">白色主题：</strong>明亮简洁的浅色界面，适合明亮环境使用</p>
+                    <p>• <strong className="text-[var(--text-primary)]">蓝色主题：</strong>专业的蓝色工业主题，突出科技感和专业性</p>
                   </div>
                 </div>
               </div>
