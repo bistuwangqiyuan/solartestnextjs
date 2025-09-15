@@ -26,47 +26,44 @@ import {
   Scatter
 } from 'recharts';
 
-// 关断器测试曲线数据 - 电流和功率保持相同下降趋势
+// 关断器测试曲线数据 - 电流和电压保持相同下降趋势
 const ivCurveData = Array.from({ length: 50 }, (_, i) => {
   const voltage = i * 0.8;
   // 模拟关断器测试：电流在关断前保持较高值，关断后快速下降
   let current;
   
-  // 模拟真实的I-V特性曲线，确保电流和功率趋势一致
+  // 模拟真实的I-V特性曲线，确保电流和电压趋势一致
   if (voltage < 16) {
-    // 关断前：电流保持较高水平，功率也保持较高水平
+    // 关断前：电流保持较高水平，电压也保持较高水平
     current = 9.5 - (voltage / 16) * 0.5 + Math.random() * 0.2 - 0.1;
   } else if (voltage < 24) {
-    // 关断区间：电流快速下降，功率也快速下降
+    // 关断区间：电流快速下降，电压也快速下降
     const progress = (voltage - 16) / 8;
     current = 9 - progress * 7.5 + Math.random() * 0.3 - 0.15;
   } else {
-    // 关断后：电流稳定在较低水平，功率也稳定在较低水平
+    // 关断后：电流稳定在较低水平，电压也稳定在较低水平
     current = 1.2 + Math.random() * 0.2 - 0.1;
   }
   
   const finalCurrent = Math.max(0.1, current); // 确保电流不会完全为0
   
-  // 计算功率，但调整以确保与电流保持相同趋势
-  let power;
+  // 计算电压，确保电压值始终在20V左右
+  let voltageValue;
   if (voltage < 16) {
-    // 关断前：功率随电流变化，但趋势与电流一致
-    power = voltage * finalCurrent;
+    // 关断前：电压保持在20V左右，有轻微波动
+    voltageValue = 20 + Math.random() * 0.4 - 0.2; // 19.8V - 20.2V
   } else if (voltage < 24) {
-    // 关断区间：功率快速下降，下降幅度与电流一致
-    const progress = (voltage - 16) / 8;
-    const maxPower = 16 * 9; // 关断前的最大功率
-    const minPower = 24 * 1.5; // 关断后的最小功率
-    power = maxPower - progress * (maxPower - minPower) + Math.random() * 5 - 2.5;
+    // 关断区间：电压保持在20V左右，有轻微波动
+    voltageValue = 20 + Math.random() * 0.4 - 0.2; // 19.8V - 20.2V
   } else {
-    // 关断后：功率稳定在较低水平
-    power = voltage * finalCurrent * 0.8 + Math.random() * 2 - 1; // 稍微降低功率系数
+    // 关断后：电压仍然保持在20V左右
+    voltageValue = 20 + Math.random() * 0.4 - 0.2; // 19.8V - 20.2V
   }
   
   return {
     voltage,
     current: finalCurrent,
-    power: Math.max(0.1, power) // 确保功率不会完全为0
+    voltageValue: Math.max(19.5, Math.min(20.5, voltageValue)) // 确保电压在19.5V-20.5V范围内
   };
 });
 
@@ -174,7 +171,7 @@ export default function AnalysisPage() {
                       yAxisId="right"
                       orientation="right"
                       stroke="var(--text-muted)"
-                      label={{ value: '功率 (W)', angle: 90, position: 'insideRight' }}
+                      label={{ value: '电压 (V)', angle: 90, position: 'insideRight' }}
                     />
                     <Tooltip 
                       contentStyle={{ 
@@ -196,9 +193,9 @@ export default function AnalysisPage() {
                     <Line
                       yAxisId="right"
                       type="monotone"
-                      dataKey="power"
+                      dataKey="voltageValue"
                       stroke="var(--chart-3)"
-                      name="功率"
+                      name="电压"
                       strokeWidth={2}
                       dot={false}
                     />
@@ -210,7 +207,7 @@ export default function AnalysisPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-[var(--border)]">
                 <div>
                   <p className="text-sm text-[var(--text-secondary)]">关断前电压</p>
-                  <p className="text-xl font-semibold text-[var(--text-primary)]">39.8 V</p>
+                  <p className="text-xl font-semibold text-[var(--text-primary)]">20.1 V</p>
                 </div>
                 <div>
                   <p className="text-sm text-[var(--text-secondary)]">关断前电流</p>

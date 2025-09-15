@@ -111,6 +111,7 @@ If your browser doesn't navigate to the site automatically, visit [localhost:888
 - [ ] 优化移动端响应式设计
 - [ ] 添加更多图表类型和分析功能
 - [ ] 实现用户操作日志记录
+- [x] 修改analysis页面I-V/P-V特性曲线，将功率数据改为电压数据，电压值保持在20V左右 - 2025-01-13
 
 ## 开发规范
 
