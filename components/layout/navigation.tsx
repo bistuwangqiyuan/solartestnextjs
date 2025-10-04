@@ -10,7 +10,8 @@ import {
   BarChart3, 
   Settings,
   LogOut,
-  User
+  User,
+  HelpCircle
 } from 'lucide-react';
 import { useAuthStore } from '@/lib/store/auth-store';
 import { cn } from '@/lib/utils';
@@ -22,6 +23,7 @@ const navigation = [
   { name: '实时监控', href: '/monitor', icon: Monitor },
   { name: '数据分析', href: '/analysis', icon: BarChart3 },
   { name: '系统设置', href: '/settings', icon: Settings },
+  { name: '帮助文档', href: '/help', icon: HelpCircle },
 ];
 
 export function Navigation() {
