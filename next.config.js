@@ -10,9 +10,14 @@ const nextConfig = {
     images: {
         unoptimized: true,
     },
-    experimental: {
-        appDir: true,
+    compiler: {
+        removeConsole: process.env.NODE_ENV === 'production' ? {
+            exclude: ['error', 'warn'],
+        } : false,
     },
+    compress: true,
+    poweredByHeader: false,
+    generateEtags: true,
 };
 
 module.exports = nextConfig;

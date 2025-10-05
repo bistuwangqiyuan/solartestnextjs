@@ -1,0 +1,29 @@
+# robots.txt for PV Testing System
+# https://pv-testing-system.netlify.app/robots.txt
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /auth/reset-password
+Disallow: /_next/
+Disallow: /out/
+
+# Specific bot rules
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+
+User-agent: Baiduspider
+Allow: /
+Disallow: /api/
+
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+
+# Crawl delay for all bots
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://pv-testing-system.netlify.app/sitemap.xml
+

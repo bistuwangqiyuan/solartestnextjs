@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+  <!-- Homepage -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  <!-- Dashboard -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/dashboard</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Login -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/login</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Data Management -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/data</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Experiment Management -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/experiment</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Monitor -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/monitor</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Analysis -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/analysis</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+
+  <!-- Alerts -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/alerts</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Settings -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/settings</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
+  <!-- Help -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/help</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- Auth Register -->
+  <url>
+    <loc>https://pv-testing-system.netlify.app/auth/register</loc>
+    <lastmod>2025-01-13</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+</urlset>
+
