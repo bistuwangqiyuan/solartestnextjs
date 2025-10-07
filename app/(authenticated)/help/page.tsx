@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { 
   HelpCircle, 
   ChevronRight, 
@@ -60,7 +60,7 @@ export default function HelpPage() {
     );
   };
 
-  const helpSections: HelpSection[] = [
+  const helpSections: HelpSection[] = useMemo(() => [
     {
       id: 'overview',
       title: '系统概述',
@@ -760,7 +760,7 @@ export default function HelpPage() {
         </div>
       )
     }
-  ];
+  ], []);
 
   return (
     <div className="p-6 space-y-6">
