@@ -5,10 +5,7 @@ import type { NextRequest } from 'next/server';
 const protectedRoutes = ['/dashboard', '/data', '/experiment', '/monitor', '/analysis', '/settings'];
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  
   // 去掉权限管理，所有人都可以访问所有页面
-  console.log('Public access mode - all routes accessible');
   return NextResponse.next();
 }
 

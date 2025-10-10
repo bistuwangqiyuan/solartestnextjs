@@ -170,7 +170,7 @@ export default function RootLayout({
       name: '光伏测试系统开发团队',
     },
     datePublished: '2024-01-01',
-    dateModified: new Date().toISOString(),
+    dateModified: '2025-01-13T00:00:00.000Z',
     inLanguage: 'zh-CN',
     keywords: '光伏测试,太阳能电池板,性能分析,Modbus,数据采集,I-V曲线',
     featureList: [
